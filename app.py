@@ -20,15 +20,18 @@ from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.indices.postprocessor import SimilarityPostprocessor
 import os.path
 import streamlit as sc 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 
 
 def load_data():
-    documents=SimpleDirectoryReader("data").load_data()
-    index=VectorStoreIndex.from_documents(documents,show_progress=True)
-    return index
+    PERSIST_DIR = "./storage"
+    if not os.path.exists(PERSIST_DIR):
+     docs=SimpleDirectoryReader("data").load_data()
+     index=VectorStoreIndex.from_documents(docs)
+     index.storage_context.persist(persist_dir=PERSIST_DIR)
+    else:
+     storage_context = StorageContext.from_defaults(persist_dir=PERSIST_DIR)
+     index = load_index_from_storage(storage_context)
+     return index
 
 
 def model(query):
@@ -44,9 +47,30 @@ def model(query):
 
 
 def main():
-    query = "What is the capital of France?"
-    response = model(query)
-    pprint_response(response)
+    sc.title('RAG BASED SEARCH ENGINE')
+    menu=['Home','About']
+    choice=sc.sidebar.selectbox('Menu',menu)
+    if choice=='Home':
+        sc.subheader('query')
+        with sc.form(key='RAG-SEARCH'):
+            raw_query = sc.text_area("type-here")
+            sub_text = sc.form_submit_button(label='YES')
+        if sub_text:
+          
+            prediction=model(raw_query)
+            sc.success("RAG SEARCH RESULT")
+            sc.write(prediction)
+    else:
+         sc.subheader('About')
+         sc.write('This is a search engine based on RAG model')
+         sc.write('RAG model is a retrieval augmented generation model')
+         sc.write('This project was done for the purpose of thesis evaluation and research')
+         # response = model("What is the
+              
+            
+            
+            
+
     # print(response.get_top_answer())    
     
   

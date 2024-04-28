@@ -5,3 +5,4 @@ data/
 .pdf
 .ipynb_checkpoints/
 __pycache__/
+.json
